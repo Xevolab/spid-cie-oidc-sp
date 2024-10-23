@@ -1,0 +1,43 @@
+{
+	"name": "@xevolab/spid-cie-oidc-ts",
+	"version": "0.1.0",
+	"description": "SPID/CIE OIDC Federation SP implementation in Typescript",
+	"private": true,
+	"author": "Xevolab S.R.L.",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"require": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"dev": "tsc --watch",
+		"build": "tsc",
+		"docs": "npx typedoc src/index.ts --plugin typedoc-github-theme --entryPointStrategy expand"
+	},
+	"devDependencies": {
+		"@types/jsonwebtoken": "^9.0.7",
+		"@typescript-eslint/eslint-plugin": "^8.8.1",
+		"@typescript-eslint/parser": "^8.8.1",
+		"@xevolab/eslint-config": "^1.1.0",
+		"eslint": "8",
+		"typedoc": "^0.26.10",
+		"typedoc-github-theme": "^0.1.2",
+		"typescript": "^5.6.3",
+		"typescript-eslint": "^8.8.1"
+	},
+	"dependencies": {
+		"axios": "^1.7.7",
+		"jose": "^5.9.3",
+		"jsonwebtoken": "^9.0.2",
+		"node-cache": "^5.1.2"
+	}
+}
