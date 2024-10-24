@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"outDir": "./dist/cjs",
+		"rootDir": "./src",
+		"target": "es2018",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"declaration": true,
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+}

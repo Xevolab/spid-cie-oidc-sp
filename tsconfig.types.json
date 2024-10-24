@@ -1,12 +1,13 @@
 {
 	"compilerOptions": {
-		"outDir": "./dist",
+		"outDir": "./dist/types",
 		"rootDir": "./src",
 		"target": "es2018",
 		"module": "ESNext",
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
 		"declaration": true,
+		"emitDeclarationOnly": true
 	},
 	"include": [
 		"src/**/*.ts"
