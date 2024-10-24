@@ -16,6 +16,10 @@ jobs:
       - run: yarn remove @xevolab/eslint-config
       - run: yarn
       - run: yarn run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist
 
   publish-gpr:
     runs-on: ubuntu-latest
@@ -31,6 +35,10 @@ jobs:
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
 
       - run: npm publish
     env:
@@ -45,6 +53,12 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist
+
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
