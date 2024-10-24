@@ -13,9 +13,9 @@
   <a href="https://github.com/xevolab/spid-cie-oidc-ts/releases"><strong>Releases</strong></a>
 </p>
 <p align="center">
-  <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="Apache 2.0 License" /></a>
-  <img src="https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF" />
-  <a href="https://github.com/projen/projen/actions/workflows/release.yml"><img src="https://github.com/projen/projen/actions/workflows/release.yml/badge.svg" alt="Release badge" /></a>
+	<img src="https://img.shields.io/github/package-json/v/xevolab/spid-cie-oidc-ts/main?label=Version" />
+	<a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg" alt="Apache 2.0 License" /></a>
+	<img src="https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF" />
 </p>
 
 > [!NOTE]
