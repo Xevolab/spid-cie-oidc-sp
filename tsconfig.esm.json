@@ -6,7 +6,6 @@
 		"module": "ESNext",
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
-		"declaration": true,
 	},
 	"include": [
 		"src/**/*.ts"

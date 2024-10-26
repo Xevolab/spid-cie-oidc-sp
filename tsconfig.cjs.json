@@ -5,8 +5,8 @@
 		"target": "es2018",
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
-		"declaration": true,
 	},
 	"include": [
 		"src/**/*.ts"

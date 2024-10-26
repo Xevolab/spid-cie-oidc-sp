@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-09-02 17:57
  * Edited by : Francesco
- * Edited at : 2024-10-21 22:48
+ * Edited at : 2024-10-23 22:03
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -179,9 +179,9 @@ export type ParsedKeyPair = {
  * Extended version of the IDP object, with the configuration and trust chain
  */
 export type ParsedIDP = IDP & {
-	ec: JwtPayload,
-	trustChain: TrustChain,
-	getKey: (kid: string) => KeyObject,
+	ec: JwtPayload
+	trustChain: TrustChain
+	getKey: (kid: string) => KeyObject
 }
 
 export type Session = {

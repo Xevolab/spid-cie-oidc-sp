@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-03-23 20:56
  * Edited by : Francesco
- * Edited at : 2024-10-22 21:40
+ * Edited at : 2024-10-26 14:21
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -23,7 +23,7 @@ import { getEntityConfiguration, getEntityConfigurationFromAnchor } from "./oidc
 
 import {
 	ConstructorObject, ParsedKeyPair, JWK, ParsedIDP, Session,
-	TokenRequestPayload,
+	TokenRequestPayload, LoggerFunction,
 } from "./types";
 
 /**
@@ -64,7 +64,7 @@ export default class OIDCClient {
 
 	private keys: Record<string, { sig: ParsedKeyPair, enc?: ParsedKeyPair }>;
 
-	private logger: ConstructorObject["logger"];
+	private logger: LoggerFunction;
 
 	/**
 	 * The constructor for the OIDC client
@@ -118,7 +118,7 @@ export default class OIDCClient {
 
 		// Warn the user if the logger function is not provided
 		if (!logger) console.warn("[oidc-ts] No logger function provided. According to the guidelines, it is required: https://docs.italia.it/italia/spid/spid-cie-oidc-docs/it/versione-corrente/log_management.html#gestione-dei-log-di-un-op-e-di-un-rp");
-		this.logger = logger;
+		else this.logger = logger;
 	}
 
 	/**
@@ -140,14 +140,15 @@ export default class OIDCClient {
 		).map((key: ParsedKeyPair): JWK | undefined => {
 			if (!key) return;
 			if (!key.public || !key.private) return;
+
+			const publicJWK = key.public.export({ format: "jwk" });
+
 			return {
 				alg: key.alg,
 				kty: key.private.asymmetricKeyType?.toUpperCase() || "RSA",
 				use: key.use, // Assuming it's used for signatures
-				// @ts-expect-error n is not in the types but it's a valid property
-				n: key.public.n, // Modulus
-				// @ts-expect-error e is not in the types but it's a valid property
-				e: key.public.e, // Exponent
+				n: publicJWK.n as string, // Modulus
+				e: publicJWK.e as string, // Exponent
 				kid: key.kid,
 			};
 		}).filter(Boolean) as JWK[];
@@ -182,7 +183,7 @@ export default class OIDCClient {
 		// Initialize the session with all the necessary data
 		const session: Session = {
 			providerID: provider.id,
-			provider: provider.ec.iss,
+			provider: provider.ec.iss as string,
 			nonce: crypto.randomBytes(16).toString("hex"),
 			state: crypto.randomBytes(16).toString("hex"),
 			code: crypto.randomBytes(16).toString("hex"),
@@ -265,7 +266,7 @@ export default class OIDCClient {
 		payload?: Record<string, string>,
 	}> {
 		// State allows us to retrive the flow session
-		const session: Session = this.sessions.get(state);
+		const session: Session | undefined = this.sessions.get(state);
 		if (!session) return { ok: false, error: "oidcExp" };
 
 		// Delete the session upon retrieval
@@ -274,9 +275,12 @@ export default class OIDCClient {
 		// Check that the issuer is the same as the one in the session
 		if (session.provider !== iss) return { ok: false, error: "oidcInvTok" };
 
-		let provider = null;
+		let provider: ParsedIDP & { config: any };
 		try {
+			// @ts-ignore
 			provider = await this.getProvider(session.providerID);
+
+			provider.config = await getEntityConfiguration(provider.entityID);
 		}
 		catch (e) {
 			console.error(e);
@@ -355,6 +359,7 @@ export default class OIDCClient {
 			endpoint: provider.config.metadata.openid_provider.userinfo_endpoint,
 		});
 
+		console.log(provider.config.metadata);
 		// Now we can use the token to request the user's information
 		const userInfoResponse = await axios({
 			method: "GET",
@@ -363,6 +368,7 @@ export default class OIDCClient {
 				Authorization: `Bearer ${accessToken.trim()}`,
 			},
 		});
+		console.log(userInfoResponse);
 
 		// The usertoken is returned as an encrypted JWT
 		const decryptedUserInfo = await jose.compactDecrypt(
@@ -377,10 +383,10 @@ export default class OIDCClient {
 		({ header } = jwt.decode(userInfo, { complete: true }));
 
 		// Which contains the user's information as a JWT payload
-		const decodedUserInfo: unknown = jwt.verify(
+		const decodedUserInfo: Record<string, string> = jwt.verify(
 			userInfo,
 			provider.getKey(header.kid),
-		);
+		) as any;
 
 		// Mapping the user's attributes to the requested ones
 		const userAttributes: Record<string, string> = this.attributes
@@ -484,11 +490,12 @@ export default class OIDCClient {
 	 * @param  sub  The trust anchor entity ID
 	 */
 	private async getTrustAnchor(sub: string): Promise<JwtPayload> {
-		if (this.trustAnchors.has(sub)) return this.trustAnchors.get(sub);
+		if (this.trustAnchors.has(sub)) return this.trustAnchors.get(sub) as JwtPayload;
 
 		console.info(`[oidc-ts] Fetching trust anchor entity configuration for ${sub}`);
 		try {
 			const ec = await getEntityConfiguration(sub);
+			if (!ec.exp) throw new Error(`The entity configuration for ${sub} did not have an explicit expiration.`);
 			this.trustAnchors.set(sub, ec, ec.exp - Date.now() / 1000);
 			return ec;
 		}
@@ -516,9 +523,7 @@ export default class OIDCClient {
 		if (provider && provider.ec) return provider;
 
 		// Otherwise, validate the provider and save it in the cache
-		// @ts-expect-error The provider is not in the cache, we are going to add the properties
-		// necessary from the original provider (IDP) to make it a ParsedIDP
-		provider = this.originalProviders.find(e => e.id === idp);
+		provider = this.originalProviders.find(e => e.id === idp) as ParsedIDP;
 
 		// Decode the JWT and save the configuration
 		provider.ec = await getEntityConfiguration(provider.entityID);
@@ -555,7 +560,7 @@ export default class OIDCClient {
 			// Then we'll try to fetch the current IDP's EC through the trust anchor
 			const idpEC = await getEntityConfigurationFromAnchor(trustAnchorEC, provider.entityID);
 
-			const exp = Math.max(trustAnchorEC.exp, idpEC.exp);
+			const exp = Math.max(trustAnchorEC.exp || 0, idpEC.exp || 0);
 
 			console.info(`[oidc-ts] Was able to find a valid trust chain for IDP ${provider.entityID} through trust anchor ${t}`);
 			// If we got here, the trust chain is valid
