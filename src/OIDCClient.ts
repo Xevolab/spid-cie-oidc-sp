@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-03-23 20:56
  * Edited by : Francesco
- * Edited at : 2024-10-26 14:21
+ * Edited at : 2024-10-26 14:32
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -359,7 +359,6 @@ export default class OIDCClient {
 			endpoint: provider.config.metadata.openid_provider.userinfo_endpoint,
 		});
 
-		console.log(provider.config.metadata);
 		// Now we can use the token to request the user's information
 		const userInfoResponse = await axios({
 			method: "GET",
@@ -368,7 +367,6 @@ export default class OIDCClient {
 				Authorization: `Bearer ${accessToken.trim()}`,
 			},
 		});
-		console.log(userInfoResponse);
 
 		// The usertoken is returned as an encrypted JWT
 		const decryptedUserInfo = await jose.compactDecrypt(
