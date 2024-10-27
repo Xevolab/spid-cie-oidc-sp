@@ -20,7 +20,7 @@
 	"scripts": {
 		"dev": "tsc --watch",
 		"build": "tsc -b ./tsconfig.cjs.json ./tsconfig.esm.json ./tsconfig.types.json",
-		"docs": "npx typedoc src/index.ts --plugin typedoc-github-theme"
+		"docs": "npx typedoc --options typedoc.json"
 	},
 	"devDependencies": {
 		"@types/jsonwebtoken": "^9.0.7",

@@ -4,5 +4,9 @@
 		"./src/index.ts",
 		"./src/types.ts"
 	],
+	"plugin": [
+		"typedoc-github-theme"
+	],
+	"tsconfig": "tsconfig.esm.json",
 	"out": "docs/spid-cie-oidc-ts"
 }
