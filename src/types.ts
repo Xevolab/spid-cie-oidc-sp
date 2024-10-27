@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-09-02 17:57
  * Edited by : Francesco
- * Edited at : 2024-10-23 22:03
+ * Edited at : 2024-10-27 12:42
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -190,4 +190,16 @@ export type Session = {
 	nonce: string;
 	state: string;
 	code: string;
+}
+
+/**
+ * Content of the payload property in the callback response
+ */
+export type CallbackResponse = {
+	/** EntityID of the IDP that reported the userAttributes */
+	idp: string;
+	/** Unique state token */
+	state: string;
+	/** Key-value object containing the requested user properties */
+	userAttributes: Record<string, string>;
 }

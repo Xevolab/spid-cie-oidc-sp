@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-03-23 20:56
  * Edited by : Francesco
- * Edited at : 2024-10-26 14:32
+ * Edited at : 2024-10-27 12:43
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -23,7 +23,7 @@ import { getEntityConfiguration, getEntityConfigurationFromAnchor } from "./oidc
 
 import {
 	ConstructorObject, ParsedKeyPair, JWK, ParsedIDP, Session,
-	TokenRequestPayload, LoggerFunction,
+	TokenRequestPayload, LoggerFunction, CallbackResponse,
 } from "./types";
 
 /**
@@ -263,7 +263,7 @@ export default class OIDCClient {
 	}): Promise<{
 		ok: boolean,
 		error?: string,
-		payload?: Record<string, string>,
+		payload?: CallbackResponse,
 	}> {
 		// State allows us to retrive the flow session
 		const session: Session | undefined = this.sessions.get(state);
@@ -398,7 +398,11 @@ export default class OIDCClient {
 		// The user's information is in the response
 		return {
 			ok: true,
-			payload: userAttributes,
+			payload: {
+				state: session.state,
+				idp: provider.entityID,
+				userAttributes
+			},
 		};
 	}
 
