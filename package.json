@@ -4,6 +4,10 @@
 	"description": "SPID/CIE OIDC Federation SP implementation in Typescript",
 	"author": "Xevolab S.R.L.",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Xevolab/spid-cie-oidc-ts.git"
+	},
 	"main": "./dist/cjs/index.js",
 	"module": "./dist/esm/index.js",
 	"types": "./dist/types/index.d.ts",
