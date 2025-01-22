@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-09-02 17:57
  * Edited by : Francesco
- * Edited at : 2024-10-27 12:42
+ * Edited at : 2025-01-21 10:30
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -133,6 +133,12 @@ export type LoggerFunction = (
 		| IUserInfoRequestPayload | IUserInfoResponsePayload
 ) => void
 
+export interface CacheAdapter<T> {
+	upsert(key: string, value: T, ttl?: number): Promise<void>
+	get(key: string): Promise<T>
+	take(key: string): Promise<T>
+}
+
 /**
  * Class constructor object
  */
@@ -155,6 +161,11 @@ export type ConstructorObject = {
 	trustMarks?: TrustMark[]
 	/** The logger function, which will be called on OIDC events */
 	logger?: LoggerFunction
+	/**
+	 * Session adapter to use for storing session data (defaults to in-memory)
+	 * The class must extends CacheAdapter
+	 */
+	cacheAdapter?: CacheAdapter<Session>
 }
 
 /**

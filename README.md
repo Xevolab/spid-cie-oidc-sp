@@ -85,9 +85,28 @@ const client = new OIDCClient({
 		"iss": "",
 		"trust_mark": "eyJ..."
 	}],
-	logger: (state, action, payload) => { /* ... */ }
+	logger: (state, action, payload) => { /* ... */ },
+	cacheAdapter: SomeCacheAdapter<Session>,
 });
 ```
+
+### Creating a cache adapter
+
+The cache adapter is used to store the state of the authentication flow.
+
+It must implement the `CacheAdapter` interface, meaning it must expose the following methods:
+
+```javascript
+interface CacheAdapter<T> {
+  upsert: (key: string, value: T, ttl?: number) => Promise<void>;
+  get: (key: string, value: string) => Promise<T>;
+  take: (key: string) => Promise<T>;
+}
+```
+
+The key passed in the function calls is the state parameter of the OIDC flow. This can be modified however you want before it is passed to your persistence layer, but, of course, it must be retrievable.
+
+By default, the library uses an in-memory cache adapter, which is not recommended for production use.
 
 ### Starting the Authentication Flow
 

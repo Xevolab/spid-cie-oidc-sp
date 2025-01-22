@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-03-23 20:56
  * Edited by : Francesco
- * Edited at : 2024-10-27 12:43
+ * Edited at : 2025-01-21 10:35
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -22,9 +22,11 @@ import { parseKeyObject } from "./utils";
 import { getEntityConfiguration, getEntityConfigurationFromAnchor } from "./oidcUtils";
 
 import {
-	ConstructorObject, ParsedKeyPair, JWK, ParsedIDP, Session,
+	ConstructorObject, ParsedKeyPair, JWK, ParsedIDP, Session, CacheAdapter,
 	TokenRequestPayload, LoggerFunction, CallbackResponse,
 } from "./types";
+
+import InMemory from "./cache/InMemory";
 
 /**
  * @class OIDCClient
@@ -32,7 +34,7 @@ import {
 export default class OIDCClient {
 	// Creating the sessions cache with a TTL of 3 minutes
 	// Here we will save the various login sessions that we are still waiting to get back
-	private sessions: NodeCache = new NodeCache({ stdTTL: 60 * 3, checkperiod: 60 * 3 * 2 });
+	private sessions: CacheAdapter<Session>;
 
 	/** The client ID for the OIDC client */
 	readonly clientID: ConstructorObject["clientID"];
@@ -85,6 +87,7 @@ export default class OIDCClient {
 
 			// eslint-disable-next-line @typescript-eslint/no-empty-function
 			logger = () => { },
+			cacheAdapter = new InMemory(),
 		} = options;
 
 		//
@@ -119,6 +122,8 @@ export default class OIDCClient {
 		// Warn the user if the logger function is not provided
 		if (!logger) console.warn("[oidc-ts] No logger function provided. According to the guidelines, it is required: https://docs.italia.it/italia/spid/spid-cie-oidc-docs/it/versione-corrente/log_management.html#gestione-dei-log-di-un-op-e-di-un-rp");
 		else this.logger = logger;
+
+		this.sessions = cacheAdapter;
 	}
 
 	/**
@@ -223,7 +228,7 @@ export default class OIDCClient {
 		});
 
 		// Store the session in the cache
-		this.sessions.set(session.state, session);
+		await this.sessions.upsert(session.state, session);
 
 		// Logging the event
 		this.logger(session.state, "authorizationRequest", {
@@ -266,11 +271,8 @@ export default class OIDCClient {
 		payload?: CallbackResponse,
 	}> {
 		// State allows us to retrive the flow session
-		const session: Session | undefined = this.sessions.get(state);
+		const session: Session | undefined = await this.sessions.take(state);
 		if (!session) return { ok: false, error: "oidcExp" };
-
-		// Delete the session upon retrieval
-		this.sessions.del(state);
 
 		// Check that the issuer is the same as the one in the session
 		if (session.provider !== iss) return { ok: false, error: "oidcInvTok" };

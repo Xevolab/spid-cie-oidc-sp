@@ -1,6 +1,6 @@
 {
 	"name": "@xevolab/spid-cie-oidc-ts",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"description": "SPID/CIE OIDC Federation SP implementation in Typescript",
 	"author": "Xevolab S.R.L.",
 	"license": "MIT",
