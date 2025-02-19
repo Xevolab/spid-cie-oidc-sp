@@ -2,7 +2,7 @@
  * Author    : Francesco
  * Created at: 2024-03-23 20:56
  * Edited by : Francesco
- * Edited at : 2025-01-21 10:35
+ * Edited at : 2025-01-25 09:44
  *
  * Copyright (c) 2024 Xevolab S.R.L.
  */
@@ -428,6 +428,11 @@ export default class OIDCClient {
 		federation_entity: {
 			organization_name: string,
 			contacts: string[],
+
+			homepage_uri?: string,
+			policy_uri?: string,
+			logo_uri?: string,
+			federation_resolve_endpoint?: string,
 		},
 		opts: { json: boolean } = { json: false },
 	): Promise<string | object> {
